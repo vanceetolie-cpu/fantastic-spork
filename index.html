@@ -1,0 +1,279 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Huali Technology Product and Part Number Catalog</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #152837;
+      --muted: #4e6372;
+      --line: #c6d4dd;
+      --surface: #fff;
+      --wash: #edf3f6;
+      --navy: #17384a;
+      font-family: "Segoe UI", "Microsoft YaHei UI", "Microsoft YaHei", sans-serif;
+      font-synthesis: none;
+    }
+    *, *::before, *::after { box-sizing: border-box; }
+    body { margin: 0; color: var(--ink); background: var(--wash); }
+    [hidden] { display: none !important; }
+    .wrap { width: min(100% - 56px, 1140px); margin-inline: auto; }
+    header { background: #142f3e; color: #f5fbfc; padding: 34px 0 30px; }
+    h1 { margin: 0 0 9px; font-size: clamp(1.6rem, 3vw, 2.4rem); line-height: 1.24; letter-spacing: .015em; }
+    .totals { color: #c1d9e1; font-size: .94rem; margin: 0; }
+    main { padding-block: 25px 48px; }
+    .toolbar { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+    .search { min-width: min(100%, 340px); flex: 1; }
+    input, button { font: inherit; font-size: .93rem; border: 1px solid #a8bac7; border-radius: 8px; min-height: 44px; }
+    input { width: 100%; background: var(--surface); color: var(--ink); padding: 8px 13px; }
+    input::placeholder { color: #536879; }
+    button { background: var(--surface); color: var(--navy); padding: 7px 13px; cursor: pointer; }
+    button:hover { background: #dcecf1; }
+    button:focus-visible, input:focus-visible, summary:focus-visible { outline: 3px solid #096387; outline-offset: 2px; }
+    .sr { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
+    .result { color: var(--muted); font-size: .89rem; margin: 10px 0 0; }
+    .map { margin-top: 23px; display: grid; grid-template-columns: 184px minmax(0,1fr); gap: 34px; align-items: start; }
+    .root { padding: 17px 15px; border-radius: 10px; font-size: 1.08rem; font-weight: 700; background: var(--navy); color: #fff; position: relative; }
+    .root::after { content: ''; position: absolute; top: 50%; height: 2px; width: 34px; left: 100%; background: var(--line); }
+    .legend { display: grid; gap: 8px; margin-top: 15px; font-size: .86rem; color: var(--muted); }
+    .legend div { display: flex; align-items: center; gap: 9px; }
+    .families { display: grid; gap: 14px; min-width: 0; }
+    .family { --tone: #13747d; --tint: #e0eff1; position: relative; }
+    .family::before { content: ''; position: absolute; top: 26px; left: -17px; width: 17px; height: 2px; background: var(--line); }
+    .family:has(~ .family:not([hidden]))::after { content: ''; position: absolute; top: 26px; left: -17px; bottom: -40px; width: 2px; background: var(--line); }
+    .pudding-air { --tone: #235d91; --tint: #e4eef9; }
+    .hd3 { --tone: #694b87; --tint: #ede7f6; }
+    .airdial { --tone: #855517; --tint: #f6eddc; }
+    .linx { --tone: #376650; --tint: #e5f0e9; }
+    summary { cursor: pointer; list-style: none; }
+    summary::-webkit-details-marker { display: none; }
+    .family > summary, .variant > summary { display: flex; align-items: center; gap: 10px; }
+    .family > summary::before, .variant > summary::before { content: ''; border: solid currentColor; border-width: 0 2px 2px 0; width: 7px; height: 7px; flex: 0 0 7px; transform: rotate(-45deg); margin-right: 3px; }
+    details[open] > summary::before { transform: rotate(45deg) translateY(-2px); }
+    .family > summary { position: relative; border: 1px solid var(--line); border-left: 4px solid var(--tone); border-radius: 9px; padding: 12px 15px; color: var(--tone); background: var(--tint); min-height: 54px; flex-wrap: wrap; }
+    .family > summary .name { font-size: 1.04rem; }
+    .family > summary .subname { margin-left: 1px; }
+    .variant-count { margin-left: auto; font-size: .78rem; white-space: nowrap; color: var(--muted); }
+    .name { font-weight: 650; color: var(--ink); }
+    .subname { color: var(--muted); font-size: .83rem; overflow-wrap: anywhere; }
+    .branch { list-style: none; padding-left: 23px; margin: 0 0 0 14px; border-left: 1px solid var(--line); min-width: 0; }
+    .branch > li { position: relative; min-width: 0; padding-top: 8px; }
+    .branch > li::before { content: ''; position: absolute; top: 29px; left: -23px; width: 23px; border-top: 1px solid var(--line); }
+    .family-branch > li::before { top: 31px; }
+    .variant > summary { padding: 0 10px; min-width: 0; border: 1px solid #bccbd5; background: #f8fbfd; border-radius: 8px; }
+    .variant > summary:hover { background: #f0f7fa; }
+    .variant > summary .part { flex: 1; border: 0; padding-left: 0; background: transparent; }
+    .part { display: flex; gap: 6px 10px; align-items: center; flex-wrap: wrap; min-width: 0; border: 1px solid #c5d1da; background: #fff; border-radius: 7px; min-height: 42px; padding: 7px 10px; }
+    .part .name { overflow-wrap: anywhere; font-size: .92rem; }
+    .level { display: inline-block; padding: 3px 6px; border-radius: 4px; font-size: .74rem; font-weight: 650; white-space: nowrap; }
+    .level.final { background: #e3ecf7; color: #254875; }
+    .level.system { background: #e1eee8; color: #2b5f49; }
+    .level.board { background: #ece7f3; color: #544072; }
+    .part-id { margin-left: auto; display: flex; align-items: center; flex-wrap: wrap; gap: 6px 9px; }
+    code { font-family: "Cascadia Mono", Consolas, monospace; color: #163a53; font-size: .98rem; white-space: nowrap; font-weight: 650; }
+    .rev { font-size: .72rem; min-width: 62px; color: var(--muted); white-space: nowrap; }
+    .prelim { color: #713e00; border: 1px solid #e0c69e; background: #fcf1dd; border-radius: 5px; padding: 2px 5px; font-size: .72rem; white-space: nowrap; }
+    .source { padding: 7px 0 1px 20px; color: var(--muted); font-size: .78rem; }
+    .source summary { display: inline-block; min-height: 26px; padding: 3px 2px; text-decoration: underline; text-underline-offset: 2px; }
+    .source div { display: grid; gap: 3px; margin-block: 2px 7px; overflow-wrap: anywhere; }
+    .part.match { outline: 2px solid #986400; outline-offset: -2px; background: #fff5d8; }
+    .empty { margin: 0; padding: 16px; background: #fff; border-radius: 8px; border: 1px solid var(--line); }
+    @media (max-width: 750px) {
+      .wrap { width: calc(100% - 28px); }
+      .map { display: block; }
+      .root { display: inline-block; }
+      .root::after, .family::before, .family::after { display: none; }
+      .legend { display: flex; flex-wrap: wrap; margin: 12px 0 16px; }
+      .legend div { font-size: .73rem; gap: 5px; }
+      .branch { padding-left: 14px; margin-left: 9px; }
+      .branch > li::before { left: -14px; width: 14px; }
+      .part-id { margin-left: 0; }
+      .variant > summary { gap: 5px; padding: 0 6px; flex-wrap: wrap; }
+      .variant > summary .part { min-width: calc(100% - 17px); }
+      .prelim { margin: 0 0 5px 15px; }
+    }
+    @media print {
+      .toolbar, .result, .source, .root::after { display: none !important; }
+      body, header { color: #000; background: #fff; }
+      header { padding: 16px 0 0; }
+      .totals { color: #333; }
+      .wrap { width: 100%; }
+      .map { display: block; }
+      .root { color: #000; background: none; padding: 0; }
+      .legend { display: flex; margin: 8px 0 12px; }
+      .variant { break-inside: avoid; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="wrap">
+      <h1>桦力科技产品机型料号</h1>
+      <p class="totals">5 个产品系列 · 14 个机种 · 41 个不同料号</p>
+    </div>
+  </header>
+  <main class="wrap">
+    <div class="toolbar">
+      <label class="search" for="search"><span class="sr">查找机种或料号</span><input id="search" type="search" placeholder="输入机种、颜色或料号，例如 110-0181-108" autocomplete="off"></label>
+      <button type="button" id="expand">展开全部</button>
+      <button type="button" id="collapse">折叠全部</button>
+      <button type="button" id="lang" aria-label="Switch language">English</button>
+    </div>
+    <p class="result" id="result" role="status" hidden></p>
+    <section class="map" aria-label="产品系列与料号关系">
+      <div>
+        <div class="root">桦力产品</div>
+        <div class="legend" aria-label="料号层级">
+          <div><span class="level final">850</span>最终成品</div>
+          <div><span class="level system">110</span>成品</div>
+          <div><span class="level board">140</span>PCB / PCBA</div>
+        </div>
+      </div>
+      <div class="families" id="families">
+        <details class="family pudding" data-search="PUDDING TELO" open><summary><span class="name">PUDDING</span><span class="subname">TELO</span><span class="variant-count">2 个机种</span></summary><ul class="branch family-branch"><li><details class="variant" data-search="TELO  PUDDING TELO ECO-082130" open><summary><span class="part final" data-part="850-0205-105" data-search="TELO  850-0205-105 ASSY, BULK PACKAGING, OOMA TELO - PUDDING, 15 PER CARTON 最终成品"><span class="level final">最终成品</span><span class="name">TELO</span><span class="part-id"><code>850-0205-105</code><span class="rev">REV A00</span></span></span></summary><ul class="branch"><li><span class="part system" data-part="110-0186-108" data-search="PUDDING 系统成品  110-0186-108 FINAL SYSTEM ASSY, TELO - PUDDING 成品"><span class="level system">成品</span><span class="name">PUDDING 系统成品</span><span class="part-id"><code>110-0186-108</code><span class="rev">REV A00</span></span></span><ul class="branch"><li><span class="part board" data-part="140-0317-210" data-search="PUDDING PCBA  140-0317-210 ASSY, PCBA, PUDDING, VER 2.10 PCB / PCBA"><span class="level board">PCB / PCBA</span><span class="name">PUDDING PCBA</span><span class="part-id"><code>140-0317-210</code><span class="rev">REV A00</span></span></span></li></ul></li></ul><details class="source"><summary>资料来源</summary><div><span>850-0205-105_Telo-Pudding_ECO-082130.xlsx</span><span>ECO_Release_Note · ECO-082130</span></div></details></details></li><li><details class="variant" data-search="TELO WHITE 白色 PUDDING TELO ECO-082130"><summary><span class="part final" data-part="850-0207-105" data-search="TELO WHITE 白色 850-0207-105 ASSY, BULK PACKAGING, OOMA TELO WHITE- PUDDING, 15 PER CARTON 最终成品"><span class="level final">最终成品</span><span class="name">TELO WHITE</span><span class="subname">白色</span><span class="part-id"><code>850-0207-105</code><span class="rev">REV A00</span></span></span></summary><ul class="branch"><li><span class="part system" data-part="110-0187-108" data-search="PUDDING 白色系统成品  110-0187-108 FINAL SYSTEM ASSY, TELO WHITE - PUDDING 成品"><span class="level system">成品</span><span class="name">PUDDING 白色系统成品</span><span class="part-id"><code>110-0187-108</code><span class="rev">REV A00</span></span></span><ul class="branch"><li><span class="part board" data-part="140-0317-210" data-search="PUDDING PCBA  140-0317-210 ASSY, PCBA, PUDDING, VER 2.10 PCB / PCBA"><span class="level board">PCB / PCBA</span><span class="name">PUDDING PCBA</span><span class="part-id"><code>140-0317-210</code><span class="rev">REV A00</span></span></span></li></ul></li></ul><details class="source"><summary>资料来源</summary><div><span>850-0207-105_Telo-White_Pudding_ECO-082130.xlsx</span><span>ECO_Release_Note · ECO-082130</span></div></details></details></li></ul></details>
+<details class="family pudding-air" data-search="PUDDING AIR TELO AIR 2"><summary><span class="name">PUDDING AIR</span><span class="subname">TELO AIR 2</span><span class="variant-count">2 个机种</span></summary><ul class="branch family-branch"><li><details class="variant" data-search="TELO AIR 2  PUDDING AIR TELO AIR 2 ECO-082130" open><summary><span class="part final" data-part="850-0203-105" data-search="TELO AIR 2  850-0203-105 ASSY, BULK PACKAGING, OOMA TELO AIR 2 - PUDDING AIR, 15 PER CARTON 最终成品"><span class="level final">最终成品</span><span class="name">TELO AIR 2</span><span class="part-id"><code>850-0203-105</code><span class="rev">REV A00</span></span></span></summary><ul class="branch"><li><span class="part system" data-part="110-0181-108" data-search="PUDDING AIR 系统成品  110-0181-108 FINAL SYSTEM ASSY, TELO AIR 2 - PUDDING AIR 成品"><span class="level system">成品</span><span class="name">PUDDING AIR 系统成品</span><span class="part-id"><code>110-0181-108</code><span class="rev">REV A00</span></span></span><ul class="branch"><li><span class="part board" data-part="140-0312-210" data-search="PUDDING AIR PCBA  140-0312-210 ASSY, PCBA, PUDDING AIR, VER 2.10 PCB / PCBA"><span class="level board">PCB / PCBA</span><span class="name">PUDDING AIR PCBA</span><span class="part-id"><code>140-0312-210</code><span class="rev">REV A00</span></span></span></li></ul></li></ul><details class="source"><summary>资料来源</summary><div><span>850-0203-105_TeloAir2-PuddingAir_ECO-082130.xlsx</span><span>ECO_Release_Note · ECO-082130</span></div></details></details></li><li><details class="variant" data-search="TELO AIR 2 WHITE 白色 PUDDING AIR TELO AIR 2 ECO-082130"><summary><span class="part final" data-part="850-0206-105" data-search="TELO AIR 2 WHITE 白色 850-0206-105 ASSY, BULK PACKAGING, OOMA TELO AIR 2 WHITE- PUDDING AIR, 15 PER CARTON 最终成品"><span class="level final">最终成品</span><span class="name">TELO AIR 2 WHITE</span><span class="subname">白色</span><span class="part-id"><code>850-0206-105</code><span class="rev">REV A00</span></span></span></summary><ul class="branch"><li><span class="part system" data-part="110-0185-108" data-search="PUDDING AIR 白色系统成品  110-0185-108 FINAL SYSTEM ASSY, TELO AIR 2 WHITE - PUDDING AIR 成品"><span class="level system">成品</span><span class="name">PUDDING AIR 白色系统成品</span><span class="part-id"><code>110-0185-108</code><span class="rev">REV A00</span></span></span><ul class="branch"><li><span class="part board" data-part="140-0312-210" data-search="PUDDING AIR PCBA  140-0312-210 ASSY, PCBA, PUDDING AIR, VER 2.10 PCB / PCBA"><span class="level board">PCB / PCBA</span><span class="name">PUDDING AIR PCBA</span><span class="part-id"><code>140-0312-210</code><span class="rev">REV A00</span></span></span></li></ul></li></ul><details class="source"><summary>资料来源</summary><div><span>850-0206-105_TeloAir2_White-PuddingAir_ECO-082130.xlsx</span><span>ECO_Release_Note · ECO-082130</span></div></details></details></li></ul></details>
+<details class="family hd3" data-search="HD3 Handset"><summary><span class="name">HD3</span><span class="subname">Handset</span><span class="variant-count">5 个机种</span></summary><ul class="branch family-branch"><li><details class="variant" data-search="HD3 Handset Black 黑色 HD3 Handset ECO-082137" open><summary><span class="part final" data-part="850-0114-300" data-search="HD3 Handset Black 黑色 850-0114-300 ASSY, BULK PACKAGING, HD3 HANDSET, BLACK, 20 PER CARTON 最终成品"><span class="level final">最终成品</span><span class="name">HD3 Handset Black</span><span class="subname">黑色</span><span class="part-id"><code>850-0114-300</code><span class="rev">REV 050</span></span></span></summary><ul class="branch"><li><span class="part system" data-part="110-0154-300" data-search="HD3 黑色手柄  110-0154-300 FINAL SYSTEM ASSY, HD3 HANDSET, BLACK 成品"><span class="level system">成品</span><span class="name">HD3 黑色手柄</span><span class="part-id"><code>110-0154-300</code><span class="rev">REV 050</span></span></span><ul class="branch"><li><span class="part board" data-part="140-0324-100" data-search="HD3 手柄 PCBA  140-0324-100 ASSY, PCBA, HD3 HANDSET, VER1 PCB / PCBA"><span class="level board">PCB / PCBA</span><span class="name">HD3 手柄 PCBA</span><span class="part-id"><code>140-0324-100</code><span class="rev">REV 050</span></span></span></li></ul></li><li><span class="part system" data-part="110-0155-200" data-search="HD3 黑色底座  110-0155-200 FINAL SYSTEM ASSY, HD3 CRADLE, BLACK 成品"><span class="level system">成品</span><span class="name">HD3 黑色底座</span><span class="part-id"><code>110-0155-200</code><span class="rev">REV 050</span></span></span></li></ul><details class="source"><summary>资料来源</summary><div><span>850-0114-3000_HD3_Handset_Blk_ECO-082137.xlsx</span><span>ECO_Release_Note · ECO-082137</span><span>文件名含 850-0114-3000。图中采用发布页列出的 850-0114-300。</span></div></details></details></li><li><details class="variant" data-search="HD3 Handset White 白色 HD3 Handset ECO-082137"><summary><span class="part final" data-part="850-0113-300" data-search="HD3 Handset White 白色 850-0113-300 ASSY, BULK PACKAGING, HD3 HANDSET, WHITE, 20 PER CARTON 最终成品"><span class="level final">最终成品</span><span class="name">HD3 Handset White</span><span class="subname">白色</span><span class="part-id"><code>850-0113-300</code><span class="rev">REV 050</span></span></span></summary><ul class="branch"><li><span class="part system" data-part="110-0152-300" data-search="HD3 白色手柄  110-0152-300 FINAL SYSTEM ASSY, HD3 HANDSET, WHITE 成品"><span class="level system">成品</span><span class="name">HD3 白色手柄</span><span class="part-id"><code>110-0152-300</code><span class="rev">REV 050</span></span></span><ul class="branch"><li><span class="part board" data-part="140-0324-100" data-search="HD3 手柄 PCBA  140-0324-100 ASSY, PCBA, HD3 HANDSET, VER1 PCB / PCBA"><span class="level board">PCB / PCBA</span><span class="name">HD3 手柄 PCBA</span><span class="part-id"><code>140-0324-100</code><span class="rev">REV 050</span></span></span></li></ul></li><li><span class="part system" data-part="110-0153-200" data-search="HD3 白色底座  110-0153-200 FINAL SYSTEM ASSY, HD3 CRADLE, WHITE 成品"><span class="level system">成品</span><span class="name">HD3 白色底座</span><span class="part-id"><code>110-0153-200</code><span class="rev">REV 050</span></span></span></li></ul><details class="source"><summary>资料来源</summary><div><span>HD3_Handset_Wht_850-113-300_ECO-082137.xlsx</span><span>ECO_Release_Note · ECO-082137</span><span>发布页标题写 Black，明细的包装、手柄和底座均写 WHITE。图中采用明细的白色机种和料号。</span></div></details></details></li><li><details class="variant" data-search="HD3 Handset Purple 紫色 HD3 Handset Preliminary"><summary><span class="part final" data-part="850-0215-100" data-search="HD3 Handset Purple 紫色 850-0215-100 ASSY, BULK PACKAGING, HD3 HANDSET, PURPLE, 20 PER CARTON 最终成品"><span class="level final">最终成品</span><span class="name">HD3 Handset Purple</span><span class="subname">紫色</span><span class="part-id"><code>850-0215-100</code><span class="rev">REV 050</span></span></span><span class="prelim">Preliminary</span></summary><ul class="branch"><li><span class="part system" data-part="110-0201-100" data-search="HD3 紫色手柄  110-0201-100 FINAL SYSTEM ASSY, HD3 HANDSET, PURPLE 成品"><span class="level system">成品</span><span class="name">HD3 紫色手柄</span><span class="part-id"><code>110-0201-100</code><span class="rev">REV 050</span></span></span><ul class="branch"><li><span class="part board" data-part="140-0324-100" data-search="HD3 手柄 PCBA  140-0324-100 ASSY, PCBA, HD3 HANDSET, VER1 PCB / PCBA"><span class="level board">PCB / PCBA</span><span class="name">HD3 手柄 PCBA</span><span class="part-id"><code>140-0324-100</code><span class="rev">REV 050</span></span></span></li></ul></li><li><span class="part system" data-part="110-0153-200" data-search="HD3 白色底座  110-0153-200 FINAL SYSTEM ASSY, HD3 CRADLE, WHITE 成品"><span class="level system">成品</span><span class="name">HD3 白色底座</span><span class="part-id"><code>110-0153-200</code><span class="rev">REV 050</span></span></span></li></ul><details class="source"><summary>资料来源</summary><div><span>HD3_Handset_Purple_850-215-100_Prelim.xlsx</span><span>ECO_Release_Note · Preliminary</span></div></details></details></li><li><details class="variant" data-search="HD3 Handset Green 绿色 HD3 Handset Preliminary"><summary><span class="part final" data-part="850-0216-100" data-search="HD3 Handset Green 绿色 850-0216-100 ASSY, BULK PACKAGING, HD3 HANDSET, GREEN, 20 PER CARTON 最终成品"><span class="level final">最终成品</span><span class="name">HD3 Handset Green</span><span class="subname">绿色</span><span class="part-id"><code>850-0216-100</code><span class="rev">REV 050</span></span></span><span class="prelim">Preliminary</span></summary><ul class="branch"><li><span class="part system" data-part="110-0202-100" data-search="HD3 绿色手柄  110-0202-100 FINAL SYSTEM ASSY, HD3 HANDSET, GREEN 成品"><span class="level system">成品</span><span class="name">HD3 绿色手柄</span><span class="part-id"><code>110-0202-100</code><span class="rev">REV 050</span></span></span><ul class="branch"><li><span class="part board" data-part="140-0324-100" data-search="HD3 手柄 PCBA  140-0324-100 ASSY, PCBA, HD3 HANDSET, VER1 PCB / PCBA"><span class="level board">PCB / PCBA</span><span class="name">HD3 手柄 PCBA</span><span class="part-id"><code>140-0324-100</code><span class="rev">REV 050</span></span></span></li></ul></li><li><span class="part system" data-part="110-0153-200" data-search="HD3 白色底座  110-0153-200 FINAL SYSTEM ASSY, HD3 CRADLE, WHITE 成品"><span class="level system">成品</span><span class="name">HD3 白色底座</span><span class="part-id"><code>110-0153-200</code><span class="rev">REV 050</span></span></span></li></ul><details class="source"><summary>资料来源</summary><div><span>HD3_Handset_Green_850-216-100_Prelim.xlsx</span><span>ECO_Release_Note · Preliminary</span></div></details></details></li><li><details class="variant" data-search="HD3 Handset Pink 粉色 HD3 Handset Preliminary"><summary><span class="part final" data-part="850-0217-100" data-search="HD3 Handset Pink 粉色 850-0217-100 ASSY, BULK PACKAGING, HD3 HANDSET, PINK, 20 PER CARTON 最终成品"><span class="level final">最终成品</span><span class="name">HD3 Handset Pink</span><span class="subname">粉色</span><span class="part-id"><code>850-0217-100</code><span class="rev">REV 050</span></span></span><span class="prelim">Preliminary</span></summary><ul class="branch"><li><span class="part system" data-part="110-0203-100" data-search="HD3 粉色手柄  110-0203-100 FINAL SYSTEM ASSY, HD3 HANDSET, PINK 成品"><span class="level system">成品</span><span class="name">HD3 粉色手柄</span><span class="part-id"><code>110-0203-100</code><span class="rev">REV 050</span></span></span><ul class="branch"><li><span class="part board" data-part="140-0324-100" data-search="HD3 手柄 PCBA  140-0324-100 ASSY, PCBA, HD3 HANDSET, VER1 PCB / PCBA"><span class="level board">PCB / PCBA</span><span class="name">HD3 手柄 PCBA</span><span class="part-id"><code>140-0324-100</code><span class="rev">REV 050</span></span></span></li></ul></li><li><span class="part system" data-part="110-0153-200" data-search="HD3 白色底座  110-0153-200 FINAL SYSTEM ASSY, HD3 CRADLE, WHITE 成品"><span class="level system">成品</span><span class="name">HD3 白色底座</span><span class="part-id"><code>110-0153-200</code><span class="rev">REV 050</span></span></span></li></ul><details class="source"><summary>资料来源</summary><div><span>HD3_Handset_Pink_850-217-100_Prelim.xlsx</span><span>ECO_Release_Note · Preliminary</span></div></details></details></li></ul></details>
+<details class="family airdial" data-search="AirDial2 SUNDIAL / Dual Modem"><summary><span class="name">AirDial2</span><span class="subname">SUNDIAL / Dual Modem</span><span class="variant-count">4 个机种</span></summary><ul class="branch family-branch"><li><details class="variant" data-search="SUNDIAL V4 US AirDial2 SUNDIAL / Dual Modem ECO-082150" open><summary><span class="part final" data-part="850-0204-400" data-search="SUNDIAL V4 US 850-0204-400 ASSY, BULK PACKAGING, OOMA AIRDIAL2 (SUNDIAL US), 5 PER CARTON 最终成品"><span class="level final">最终成品</span><span class="name">SUNDIAL V4</span><span class="subname">US</span><span class="part-id"><code>850-0204-400</code><span class="rev">REV 001</span></span></span></summary><ul class="branch"><li><span class="part system" data-part="110-0184-400" data-search="AirDial2 SUNDIAL US 系统成品  110-0184-400 FINAL SYSTEM ASSY, OOMA AIRDIAL2 (SUNDIAL-US) 成品"><span class="level system">成品</span><span class="name">AirDial2 SUNDIAL US 系统成品</span><span class="part-id"><code>110-0184-400</code><span class="rev">REV A00</span></span></span><ul class="branch"><li><span class="part board" data-part="140-0206-300" data-search="CHEEP PCBA  140-0206-300 ASSY, PCBA, CHEEP, VER 3.00 PCB / PCBA"><span class="level board">PCB / PCBA</span><span class="name">CHEEP PCBA</span><span class="part-id"><code>140-0206-300</code><span class="rev">REV A00</span></span></span></li><li><span class="part board" data-part="140-0308-104" data-search="CELLO PCBA  140-0308-104 ASSY, PCBA, CELLO, VER 1.04 PCB / PCBA"><span class="level board">PCB / PCBA</span><span class="name">CELLO PCBA</span><span class="part-id"><code>140-0308-104</code><span class="rev">REV A00</span></span></span></li><li><span class="part board" data-part="140-0313-400" data-search="SUNDIAL V4 PCBA  140-0313-400 ASSY, PCBA, SUNDIAL, VER 4.00 PCB / PCBA"><span class="level board">PCB / PCBA</span><span class="name">SUNDIAL V4 PCBA</span><span class="part-id"><code>140-0313-400</code><span class="rev">REV 001</span></span></span></li></ul></li></ul><details class="source"><summary>资料来源</summary><div><span>850-0204-400_AirDial2-US_(SunDialV4)_ECO-082150.xlsx</span><span>ECO_Release_Note · ECO-082150</span></div></details></details></li><li><details class="variant" data-search="SUNDIAL Non-Quectel US AirDial2 SUNDIAL / Dual Modem ECO-082152"><summary><span class="part final" data-part="850-0214-101" data-search="SUNDIAL Non-Quectel US 850-0214-101 ASSY, BULK PACKAGING, OOMA AIRDIAL2 (NON_QUECTEL), 5 PER CARTON 最终成品"><span class="level final">最终成品</span><span class="name">SUNDIAL Non-Quectel</span><span class="subname">US</span><span class="part-id"><code>850-0214-101</code><span class="rev">REV A00</span></span></span></summary><ul class="branch"><li><span class="part system" data-part="110-0200-101" data-search="AirDial2 Non-Quectel 系统成品  110-0200-101 FINAL SYSTEM ASSY, OOMA AIRDIAL2 (NON_QUECTEL) 成品"><span class="level system">成品</span><span class="name">AirDial2 Non-Quectel 系统成品</span><span class="part-id"><code>110-0200-101</code><span class="rev">REV A00</span></span></span><ul class="branch"><li><span class="part board" data-part="140-0206-300" data-search="CHEEP PCBA  140-0206-300 ASSY, PCBA, CHEEP, VER 3.00 PCB / PCBA"><span class="level board">PCB / PCBA</span><span class="name">CHEEP PCBA</span><span class="part-id"><code>140-0206-300</code><span class="rev">REV A00</span></span></span></li><li><span class="part board" data-part="140-0308-104" data-search="CELLO PCBA  140-0308-104 ASSY, PCBA, CELLO, VER 1.04 PCB / PCBA"><span class="level board">PCB / PCBA</span><span class="name">CELLO PCBA</span><span class="part-id"><code>140-0308-104</code><span class="rev">REV A00</span></span></span></li><li><span class="part board" data-part="140-0331-101" data-search="SUNDIAL Non-Quectel PCBA  140-0331-101 ASSY, PCBA, SUNDIAL-NON-QUECTEL, VER 1.01 PCB / PCBA"><span class="level board">PCB / PCBA</span><span class="name">SUNDIAL Non-Quectel PCBA</span><span class="part-id"><code>140-0331-101</code><span class="rev">REV A00</span></span></span></li></ul></li></ul><details class="source"><summary>资料来源</summary><div><span>850-0214-101_AirDial2-US_(Non_Quectel)_ECO-082152.xlsx</span><span>ECO_Release_Note · ECO-082152</span></div></details></details></li><li><details class="variant" data-search="Dual Modem SUNDIAL + PISCES AirDial2 SUNDIAL / Dual Modem ECO-082152"><summary><span class="part final" data-part="850-0210-304" data-search="Dual Modem SUNDIAL + PISCES 850-0210-304 ASSY, BULK PACKAGING, OOMA AIRDIAL2 DUAL MODEM (SUNDIAL + PISCES), 5 PER CARTON 最终成品"><span class="level final">最终成品</span><span class="name">Dual Modem</span><span class="subname">SUNDIAL + PISCES</span><span class="part-id"><code>850-0210-304</code><span class="rev">REV A00</span></span></span></summary><ul class="branch"><li><span class="part system" data-part="110-0193-304" data-search="AirDial2 Dual Modem 系统成品  110-0193-304 FINAL SYSTEM ASSY, OOMA AIRDIAL2 DUAL MODEM (SUNDIAL + PISCES)) 成品"><span class="level system">成品</span><span class="name">AirDial2 Dual Modem 系统成品</span><span class="part-id"><code>110-0193-304</code><span class="rev">REV A00</span></span></span><ul class="branch"><li><span class="part board" data-part="140-0206-300" data-search="CHEEP PCBA  140-0206-300 ASSY, PCBA, CHEEP, VER 3.00 PCB / PCBA"><span class="level board">PCB / PCBA</span><span class="name">CHEEP PCBA</span><span class="part-id"><code>140-0206-300</code><span class="rev">REV A00</span></span></span></li><li><span class="part board" data-part="140-0308-104" data-search="CELLO PCBA  140-0308-104 ASSY, PCBA, CELLO, VER 1.04 PCB / PCBA"><span class="level board">PCB / PCBA</span><span class="name">CELLO PCBA</span><span class="part-id"><code>140-0308-104</code><span class="rev">REV A00</span></span></span></li><li><span class="part board" data-part="140-0313-304" data-search="SUNDIAL V3.04 PCBA  140-0313-304 ASSY, PCBA, SUNDIAL, VER 3.04 PCB / PCBA"><span class="level board">PCB / PCBA</span><span class="name">SUNDIAL V3.04 PCBA</span><span class="part-id"><code>140-0313-304</code><span class="rev">REV A00</span></span></span></li><li><span class="part board" data-part="140-0319-101" data-search="PISCES PCBA  140-0319-101 ASSY, PCBA, PISCES, VER 1.01 PCB / PCBA"><span class="level board">PCB / PCBA</span><span class="name">PISCES PCBA</span><span class="part-id"><code>140-0319-101</code><span class="rev">REV A00</span></span></span></li></ul></li></ul><details class="source"><summary>资料来源</summary><div><span>AirDial2_Dual_Modem_850-0210-304_ECO-082152.xlsx</span><span>ECO_Release_Note · ECO-082152</span></div></details></details></li><li><details class="variant" data-search="Dual Modem RedCap SUNDIAL + RG255G AirDial2 SUNDIAL / Dual Modem Preliminary BOM"><summary><span class="part final" data-part="850-0218-304" data-search="Dual Modem RedCap SUNDIAL + RG255G 850-0218-304 ASSY, BULK PACKAGING, OOMA AIRDIAL2 DUAL MODEM REDCAP (RG255), 5 PER CARTON 最终成品"><span class="level final">最终成品</span><span class="name">Dual Modem RedCap</span><span class="subname">SUNDIAL + RG255G</span><span class="part-id"><code>850-0218-304</code><span class="rev">REV 050</span></span></span><span class="prelim">Preliminary</span></summary><ul class="branch"><li><span class="part system" data-part="110-0204-304" data-search="AirDial2 Dual Modem RedCap 系统成品  110-0204-304 FINAL SYSTEM ASSY, OOMA AIRDIAL2 DUAL MODEM REDCAP (SUNDIAL + RG255G) 成品"><span class="level system">成品</span><span class="name">AirDial2 Dual Modem RedCap 系统成品</span><span class="part-id"><code>110-0204-304</code><span class="rev">REV 050</span></span></span><ul class="branch"><li><span class="part board" data-part="140-0206-300" data-search="CHEEP PCBA  140-0206-300 ASSY, PCBA, CHEEP, VER 3.00 PCB / PCBA"><span class="level board">PCB / PCBA</span><span class="name">CHEEP PCBA</span><span class="part-id"><code>140-0206-300</code><span class="rev">REV A00</span></span></span></li><li><span class="part board" data-part="140-0308-104" data-search="CELLO PCBA  140-0308-104 ASSY, PCBA, CELLO, VER 1.04 PCB / PCBA"><span class="level board">PCB / PCBA</span><span class="name">CELLO PCBA</span><span class="part-id"><code>140-0308-104</code><span class="rev">REV A00</span></span></span></li><li><span class="part board" data-part="140-0313-304" data-search="SUNDIAL V3.04 PCBA  140-0313-304 ASSY, PCBA, SUNDIAL, VER 3.04 PCB / PCBA"><span class="level board">PCB / PCBA</span><span class="name">SUNDIAL V3.04 PCBA</span><span class="part-id"><code>140-0313-304</code><span class="rev">REV A00</span></span></span></li></ul></li></ul><details class="source"><summary>资料来源</summary><div><span>AirDial2_Dual_Modem_RedCap_850-0218-304_Prelim.xlsx</span><span>ECO_Release_Note · Preliminary BOM</span></div></details></details></li></ul></details>
+<details class="family linx" data-search="LINX LINX II / HUXLEY II"><summary><span class="name">LINX</span><span class="subname">LINX II / HUXLEY II</span><span class="variant-count">1 个机种</span></summary><ul class="branch family-branch"><li><details class="variant" data-search="LINX II  LINX LINX II / HUXLEY II EC0-082010" open><summary><span class="part final" data-part="850-0131-100" data-search="LINX II  850-0131-100 FINISHED GOODS ASSY, LINX 最终成品"><span class="level final">最终成品</span><span class="name">LINX II</span><span class="part-id"><code>850-0131-100</code><span class="rev">REV A00</span></span></span></summary><ul class="branch"><li><span class="part system" data-part="110-0131-300" data-search="LINX II 系统成品  110-0131-300 FINAL SYSTEM ASSY, LINX II 成品"><span class="level system">成品</span><span class="name">LINX II 系统成品</span><span class="part-id"><code>110-0131-300</code><span class="rev">REV A00</span></span></span><ul class="branch"><li><span class="part board" data-part="140-0143-500" data-search="HUXLEY II 主板 PCBA  140-0143-500 ASSY, PCBA, HUXLEY II, VER4 PCB / PCBA"><span class="level board">PCB / PCBA</span><span class="name">HUXLEY II 主板 PCBA</span><span class="part-id"><code>140-0143-500</code><span class="rev">REV A00</span></span></span></li><li><span class="part board" data-part="140-0144-100" data-search="HUXLEY II 电源板 PCBA  140-0144-100 ASSY, PCBA, HUXLEY II POWER BOARD, VER1 PCB / PCBA"><span class="level board">PCB / PCBA</span><span class="name">HUXLEY II 电源板 PCBA</span><span class="part-id"><code>140-0144-100</code><span class="rev">REV A00</span></span></span></li></ul></li></ul><details class="source"><summary>资料来源</summary><div><span>850-0131-100_REV-A00_Linx_Bulk_ECO-082010(98).xls</span><span>ECO - Release Note · EC0-082010</span></div></details></details></li></ul></details>
+        <p class="empty" id="empty" hidden>没有找到符合条件的机种或料号。</p>
+      </div>
+    </section>
+  </main>
+  <script>
+    const translations = {
+      '桦力科技产品机型料号': 'Huali Technology Product and Part Number Catalog',
+      '5 个产品系列 · 14 个机种 · 41 个不同料号': '5 product families · 14 models · 41 distinct part numbers',
+      '查找机种或料号': 'Search model or part number',
+      '展开全部': 'Expand All',
+      '折叠全部': 'Collapse All',
+      '桦力产品': 'Huali Products',
+      '料号层级': 'Part Number Levels',
+      '最终成品': 'Finished Good',
+      '成品': 'System Product',
+      'PCB / PCBA': 'PCB / PCBA',
+      '资料来源': 'Source',
+      '没有找到符合条件的机种或料号。': 'No matching models or part numbers found.',
+      '找到': 'Found',
+      '个机种': 'models',
+      '白色': 'White',
+      'PUDDING 系统成品': 'PUDDING System Assembly',
+      'PUDDING 白色系统成品': 'PUDDING White System Assembly',
+      'PUDDING AIR 系统成品': 'PUDDING AIR System Assembly',
+      'PUDDING AIR 白色系统成品': 'PUDDING AIR White System Assembly',
+      'PUDDING PCBA': 'PUDDING PCBA',
+      'PUDDING AIR PCBA': 'PUDDING AIR PCBA',
+      'LINX II 系统成品': 'LINX II System Assembly',
+      'HUXLEY II 主板 PCBA': 'HUXLEY II Main Board PCBA',
+      'HUXLEY II 电源板 PCBA': 'HUXLEY II Power Board PCBA',
+      'AIRDIAL 主板 PCBA': 'AIRDIAL Main Board PCBA',
+      'AIRDIAL 充电座 PCBA': 'AIRDIAL Charging Base PCBA'
+    };
+
+    const textNodes = [];
+    const textWalker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+    while (textWalker.nextNode()) {
+      if (textWalker.currentNode.textContent.trim()) textNodes.push(textWalker.currentNode);
+    }
+
+    function setLanguage(lang) {
+      document.documentElement.lang = lang === 'en' ? 'en' : 'zh-Hans';
+      document.title = lang === 'en'
+        ? 'Huali Technology Product and Part Number Catalog'
+        : '桦力科技产品机型料号';
+
+      for (const node of textNodes) {
+        const zh = node._zhText ?? node.textContent.trim();
+        node._zhText = zh;
+        let text = zh;
+
+        if (/^\d+ 个机种$/.test(text)) {
+          text = text.replace(/^(\d+) 个机种$/, '$1 models');
+        } else if (lang === 'en' && translations[text]) {
+          text = translations[text];
+        } else if (lang === 'zh') {
+          const englishEntry = Object.entries(translations).find(([, value]) => value === text);
+          if (englishEntry) text = englishEntry[0];
+        }
+
+        node.textContent = lang === 'en' ? text : zh;
+      }
+
+      const field = document.getElementById('search');
+      field.placeholder = lang === 'en'
+        ? 'Enter model, color, or part number, e.g. 110-0181-108'
+        : '输入机种、颜色或料号，例如 110-0181-108';
+      document.getElementById('lang').textContent = lang === 'en' ? '中文' : 'English';
+      document.getElementById('lang').setAttribute('aria-label', lang === 'en'
+        ? 'Switch to Chinese'
+        : 'Switch to English');
+      localStorage.setItem('huali-language', lang);
+    }
+
+    const langButton = document.getElementById('lang');
+    langButton.addEventListener('click', () => {
+      const next = document.documentElement.lang === 'en' ? 'zh' : 'en';
+      setLanguage(next);
+    });
+
+    const field = document.getElementById('search');
+    const status = document.getElementById('result');
+    const empty = document.getElementById('empty');
+    const families = [...document.querySelectorAll('.family')];
+    const branches = [...document.querySelectorAll('.family, .variant')];
+    const parts = [...document.querySelectorAll('.part')];
+    let savedBranches;
+    setLanguage(localStorage.getItem('huali-language') || 'en');
+
+    const normalize = (text) => text.normalize('NFKC').toLowerCase().replace(/[^\p{L}\p{N}]/gu, '');
+
+    field.addEventListener('input', () => {
+      const terms = field.value.trim().split(/\s+/).map(normalize).filter(Boolean);
+      if (!terms.length) {
+        branches.forEach((branch, index) => {
+          branch.hidden = false;
+          if (branch.classList.contains('variant')) branch.parentElement.hidden = false;
+          if (savedBranches) branch.open = savedBranches[index];
+        });
+        parts.forEach((part) => part.classList.remove('match'));
+        savedBranches = undefined;
+        empty.hidden = true;
+        status.hidden = true;
+        return;
+      }
+
+      savedBranches ??= branches.map((branch) => branch.open);
+      let variantCount = 0;
+      for (const family of families) {
+        let familyCount = 0;
+        for (const variant of family.querySelectorAll('.variant')) {
+          const nodes = [...variant.querySelectorAll('.part')];
+          const values = [family.dataset.search, variant.dataset.search, ...nodes.map((part) => part.dataset.search)].map(normalize);
+          const matches = terms.every((term) => values.some((value) => value.includes(term)));
+          variant.parentElement.hidden = !matches;
+          variant.hidden = !matches;
+          variant.open = matches;
+          nodes.forEach((node) => node.classList.toggle('match', matches && terms.every((term) => normalize(node.dataset.search).includes(term))));
+          if (matches) familyCount++;
+        }
+        family.hidden = !familyCount;
+        family.open = Boolean(familyCount);
+        variantCount += familyCount;
+      }
+      status.textContent = document.documentElement.lang === 'en'
+        ? `Found ${variantCount} models`
+        : `找到 ${variantCount} 个机种`;
+      status.hidden = false;
+      empty.hidden = Boolean(variantCount);
+    });
+
+    document.getElementById('expand').addEventListener('click', () => {
+      for (const branch of branches) if (!branch.hidden) branch.open = true;
+    });
+    document.getElementById('collapse').addEventListener('click', () => {
+      for (const branch of branches) branch.open = false;
+    });
+  </script>
+</body>
+</html>
