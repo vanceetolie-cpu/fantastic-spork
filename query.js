@@ -21,7 +21,7 @@ function componentLabel(group){
 }
 function scope(model,section=""){
   selectedModel=model;selectedSection=section;selectedPart="";page=0;
-  el("search").value="";el("with-photos").checked=false;
+  el("search").value="";
   drawModels();drawRows();
 }
 function drawModels(){
@@ -57,7 +57,7 @@ async function refresh(){
     section:group.id, partKey:normalize(row.part), kind:group.type,
     search:normalize([row.part,row.label,row.desc,row.ref,row.issue_model,group.id,...row.mfr.flatMap(x=>x.slice(0,3))].join(" ")),
   }))));
-  el("metrics").innerHTML=[[state.stats.models,"机型 BOM"],[state.stats.parts,"工程料号"],[state.stats.photos,"料号有照片"]]
+  el("metrics").innerHTML=[[state.stats.models,"机型 BOM"],[state.stats.parts,"工程料号"]]
     .map(([v,label])=>"<div><dd>"+v+"</dd><dt>"+label+"</dt></div>").join("");
   drawModels();
   drawRows();
@@ -66,7 +66,7 @@ function drawRows(){
   const terms=el("search").value.normalize("NFKC").trim().split(/\s+/)
     .map(raw=>[normalize(raw),numeric.test(raw)]).filter(([term])=>term);
   const filtered=rows.filter(row=>(selectedModel==="all"?row.kind==="bom":row.model===selectedModel)&&
-    (!selectedSection||row.section===selectedSection)&&(!el("with-photos").checked||row.photo)&&
+    (!selectedSection||row.section===selectedSection)&&
     terms.every(([term,isCode])=>isCode?(term.length===10?row.partKey===term:row.partKey.startsWith(term)):row.search.includes(term)));
   const last=Math.max(0,Math.ceil(filtered.length/pageSize)-1);
   page=Math.min(last,page);
@@ -122,7 +122,6 @@ el("models").addEventListener("click",event=>{
 });
 el("sections").addEventListener("change",()=>{selectedSection=el("sections").value;page=0;drawRows();});
 el("search").addEventListener("input",()=>{page=0;drawRows();});
-el("with-photos").addEventListener("change",()=>{page=0;drawRows();});
 el("previous").addEventListener("click",()=>{page--;drawRows();});
 el("next").addEventListener("click",()=>{page++;drawRows();});
 el("rows").addEventListener("click",event=>{
