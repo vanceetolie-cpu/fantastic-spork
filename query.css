@@ -20,3 +20,4 @@ dialog{width:min(780px,calc(100vw - 24px));max-height:calc(100vh - 30px);padding
 @media(max-width:670px){.layout{grid-template-columns:minmax(0,1fr)}.detail{grid-column:1}.navigation #models{display:flex;gap:6px}.hero{align-items:start;flex-direction:column}.metrics{gap:12px}.metrics dd{font-size:1.35rem}.metrics dt{font-size:13px}.mastinner{height:auto;min-height:60px}}
 .family{margin:6px 0;padding-block:6px;border-bottom:1px solid var(--line)}.family summary,.version-row summary{cursor:pointer;padding:3px 2px;font-size:14px;font-weight:600}.family button{padding-left:11px}.row-label{font-size:13px}.archive-links{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:5px 16px}.version-row>div{flex:1}
 @media(max-width:670px){.navigation #models{display:block}}
+.personal-list{min-width:0}.personal-list th:first-child{width:74px}.personal-list .part,.detail .part-id{overflow-wrap:anywhere}

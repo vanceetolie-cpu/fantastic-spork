@@ -37,9 +37,14 @@ function drawModels(){
       '><summary>'+html(family)+'</summary>'+books.map(modelButton).join("")+'</details>';
   });
   const issue=state.books.find(item=>item.kind==="issue");
-  el("models").innerHTML=modelButton({model:"all",title:"全部工程 BOM"})+view.join("")+(issue?modelButton(issue):"");
+  const personal={model:"personal",title:"自用物料"};
+  el("models").innerHTML=modelButton({model:"all",title:"全部工程 BOM"})+
+    (state.personal?.length?modelButton(personal):"")+view.join("")+(issue?modelButton(issue):"");
   const book=state.books.find(item=>item.model===selectedModel);
-  el("list-title").textContent=book?.title??"全部工程 BOM";
+  const personalView=selectedModel===personal.model;
+  el("list-title").textContent=personalView?personal.title:book?.title??"全部工程 BOM";
+  el("search").placeholder=personalView?"搜索文件名或备注":
+    selectedModel==="all"?"搜索料号、名称、厂家料号或文件名":"搜索料号、名称或厂家料号";
   el("rev-heading").textContent=book?.kind==="issue"?"机种号":"REV";
   el("component-heading").textContent=book?.kind==="issue"?"发料单":"组件";
   el("sections").innerHTML='<option value="">全部组件</option>'+(book?.groups??[]).map(group=>
@@ -49,7 +54,7 @@ function drawModels(){
 }
 
 async function refresh(){
-  const response=await fetch("./materials.json");
+  const response=await fetch("./materials.json",{cache:"no-cache"});
   if(!response.ok)throw new Error("暂时无法读取物料，请刷新重试。");
   state=await response.json();
   rows=state.books.flatMap(book=>book.groups.flatMap(group=>group.rows.map(row=>({
@@ -57,6 +62,10 @@ async function refresh(){
     section:group.id, partKey:normalize(row.part), kind:group.type,
     search:normalize([row.part,row.label,row.desc,row.ref,row.issue_model,group.id,...row.mfr.flatMap(x=>x.slice(0,3))].join(" ")),
   }))));
+  rows.push(...(state.personal??[]).map(item=>({
+    uid:"personal|"+item.name,model:"personal",kind:"personal",part:item.name,label:item.label,partKey:normalize(item.name),
+    search:normalize(item.name+" "+item.label),photo:{url:item.url}
+  })));
   el("metrics").innerHTML=[[state.stats.models,"机型 BOM"],[state.stats.parts,"工程料号"]]
     .map(([v,label])=>"<div><dd>"+v+"</dd><dt>"+label+"</dt></div>").join("");
   drawModels();
@@ -65,20 +74,28 @@ async function refresh(){
 function drawRows(){
   const terms=el("search").value.normalize("NFKC").trim().split(/\s+/)
     .map(raw=>[normalize(raw),numeric.test(raw)]).filter(([term])=>term);
-  const filtered=rows.filter(row=>(selectedModel==="all"?row.kind==="bom":row.model===selectedModel)&&
+  const includePersonal=selectedModel==="all"&&terms.length>0;
+  const filtered=rows.filter(row=>(selectedModel==="all"?
+    row.kind==="bom"||(includePersonal&&row.kind==="personal"):row.model===selectedModel)&&
     (!selectedSection||row.section===selectedSection)&&
-    terms.every(([term,isCode])=>isCode?(term.length===10?row.partKey===term:row.partKey.startsWith(term)):row.search.includes(term)));
+    terms.every(([term,isCode])=>isCode?(row.kind!=="personal"&&term.length===10?row.partKey===term:row.partKey.startsWith(term)):row.search.includes(term)));
+  const personalColumns=selectedModel==="personal"||
+    (filtered.length>0&&filtered.every(row=>row.kind==="personal"));
+  el("part-heading").textContent=personalColumns?"文件名与备注":"料号与描述";
+  for(const id of ["rev-heading","qty-heading","component-heading"])el(id).hidden=personalColumns;
+  el("rows").closest("table").classList.toggle("personal-list",personalColumns);
   const last=Math.max(0,Math.ceil(filtered.length/pageSize)-1);
   page=Math.min(last,page);
   const offset=page*pageSize;
   const visible=filtered.slice(offset,offset+pageSize);
   el("rows").innerHTML=visible.map(row=>'<tr data-row="'+html(row.uid)+'"><td>'+
     (row.photo?'<button type="button" class="tn" data-zoom aria-label="放大 '+html(row.part)+' 的照片"><img src="'+html(row.photo.url)+'" alt=""></button>':'<span class="none">—</span>')+
-    '</td><td><button class="part" type="button">'+html(row.part)+'</button>'+
+    '</td><td'+(row.kind==="personal"&&!personalColumns?' colspan="4"':"")+'><button class="part" type="button">'+html(row.part)+'</button>'+
+    (row.kind==="personal"?(row.label?'<span class="describe">'+html(row.label)+'</span>':"")+'</td>':
     (row.label?' <span class="row-label">'+html(row.label)+'</span>':"")+'<span class="describe">'+html(row.desc)+'</span></td>'+
     '<td class="mono">'+html(row.kind==="issue"?row.issue_model:row.rev||"—")+'</td><td class="mono row-qty">'+html(row.qty)+'</td><td class="'+(row.kind==="issue"?"":"mono")+'">'+html(row.section)+
-    (selectedModel==="all"?'<span class="describe">'+html(row.modelTitle)+'</span>':"")+'</td></tr>').join("")
-    ||'<tr><td class="empty muted" colspan="5">没有符合条件的物料。</td></tr>';
+    (selectedModel==="all"?'<span class="describe">'+html(row.modelTitle)+'</span>':"")+'</td>')+'</tr>').join("")
+    ||'<tr><td class="empty muted" colspan="'+(personalColumns?2:5)+'">没有符合条件的物料。</td></tr>';
   el("page-status").textContent=visible.length?"第 "+(offset+1)+"–"+(offset+visible.length)+" 条，共 "+filtered.length+" 条":"共 0 条";
   el("previous").disabled=page===0;
   el("next").disabled=page>=last;
@@ -89,6 +106,14 @@ function showDetail(row,scroll=false){
   selectedPart=row?.uid??"";
   for(const element of el("rows").querySelectorAll("[data-row]"))element.classList.toggle("selected",element.dataset.row===selectedPart);
   if(!row){el("detail").innerHTML='<h2>物料详情</h2><p class="muted">请选择物料。</p>';return;}
+  if(row.kind==="personal"){
+    el("detail").innerHTML='<h2>物料详情</h2><button type="button" class="photo" id="enlarge" aria-label="放大照片"><img src="'+
+      html(row.photo.url)+'" alt=""></button><p class="mono part-id">'+html(row.part)+'</p>'+
+      (row.label?'<h3>'+html(row.label)+'</h3>':"");
+    el("enlarge").addEventListener("click",()=>zoom(row));
+    if(scroll&&matchMedia("(max-width:1120px)").matches)el("detail").scrollIntoView({block:"start"});
+    return;
+  }
   const fields=[["用量",row.qty],["要求数量",row.request_qty],["实际数量",row.actual_qty],["机种号",row.issue_model],
     ["REV",row.rev],["层级",row.level],["父件",row.parent],["位号",row.ref],
     ["备注",row.note]];
