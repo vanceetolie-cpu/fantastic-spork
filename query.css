@@ -21,3 +21,5 @@ dialog{width:min(780px,calc(100vw - 24px));max-height:calc(100vh - 30px);padding
 .family{margin:6px 0;padding-block:6px;border-bottom:1px solid var(--line)}.family summary,.version-row summary{cursor:pointer;padding:3px 2px;font-size:14px;font-weight:600}.family button{padding-left:11px}.row-label{font-size:13px}.archive-links{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:5px 16px}.version-row>div{flex:1}
 @media(max-width:670px){.navigation #models{display:block}}
 .personal-list{min-width:0}.personal-list th:first-child{width:74px}.personal-list .part,.detail .part-id{overflow-wrap:anywhere}
+#language{min-height:44px;max-width:48%;padding:7px 10px;border:1px solid #7291a8;border-radius:7px;background:#1d3c55;color:#fff;font-size:14px}
+@media(max-width:670px){.metrics div{min-width:0}}

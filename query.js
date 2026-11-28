@@ -4,12 +4,87 @@ const html=(value)=>String(value??"—").replace(/[&<>"']/g,c=>({"&":"&amp;","<"
 const normalize=(value)=>String(value??"").normalize("NFKC").toLowerCase().replace(/[\s‐‑‒–—−-]/g,"");
 const numeric=/^\d+(?:[-‐‑‒–—−]\d*)*$/;
 const pageSize=14;
+const locales=["zh-CN","en","vi"];
+const text={
+  brand:["桦力科技","Huali Technology","Công nghệ Huali"],
+  title:["桦力 BOM","Huali BOM","BOM Huali"],
+  language:["语言","Language","Ngôn ngữ"],
+  stats:["目录统计","Catalog totals","Thống kê danh mục"],
+  models:["机型","Models","Dòng máy"],
+  list:["物料清单","Materials","Danh sách vật tư"],
+  modelCount:["机型 BOM","Model BOMs","BOM theo dòng máy"],
+  partCount:["工程料号","Engineering part numbers","Mã vật tư kỹ thuật"],
+  all:["全部工程 BOM","All engineering BOMs","Tất cả BOM kỹ thuật"],
+  personal:["自用物料","Supplementary materials","Vật tư bổ sung"],
+  issue:["生产发料单","Production issue list","Phiếu xuất vật tư sản xuất"],
+  component:["组件","Assembly","Cụm lắp ráp"],
+  components:["全部组件","All assemblies","Tất cả cụm lắp ráp"],
+  componentFilter:["筛选组件","Filter by assembly","Lọc theo cụm lắp ráp"],
+  finished:["成品","Finished unit","Thành phẩm"],
+  system:["整机","System assembly","Cụm máy hoàn chỉnh"],
+  modelNumber:["机种号","Model number","Mã dòng máy"],
+  searchLabel:["搜索物料","Search materials","Tìm vật tư"],
+  search:["搜索料号、名称或厂家料号","Part number, name or manufacturer part no.","Mã vật tư, tên hoặc mã của nhà sản xuất"],
+  searchAll:["搜索料号、名称、厂家料号或文件名","Part number, name, manufacturer part no. or filename","Mã vật tư, tên, mã nhà sản xuất hoặc tên tệp"],
+  searchPersonal:["搜索文件名或备注","Filename or note","Tên tệp hoặc ghi chú"],
+  part:["料号与描述","Part number and description","Mã và mô tả vật tư"],
+  file:["文件名与备注","Filename and note","Tên tệp và ghi chú"],
+  photo:["照片","Photo","Ảnh"],
+  rev:["REV","Rev.","Phiên bản"],
+  quantity:["用量","Quantity","Định mức"],
+  requested:["要求数量","Requested quantity","Số lượng yêu cầu"],
+  actual:["实际数量","Actual quantity","Số lượng thực tế"],
+  level:["层级","Level","Cấp BOM"],
+  parent:["父件","Parent assembly","Cụm cha"],
+  reference:["位号","Ref. designator","Vị trí linh kiện"],
+  note:["备注","Note","Ghi chú"],
+  previous:["上一页","Previous","Trang trước"],
+  next:["下一页","Next","Trang sau"],
+  range:["第 {from}–{to} 条，共 {total} 条","{from}–{to} of {total} results","{from}–{to} trên {total} kết quả"],
+  zero:["共 0 条","0 results","0 kết quả"],
+  empty:["没有符合条件的物料。","No matching materials.","Không tìm thấy vật tư phù hợp."],
+  detail:["物料详情","Material details","Chi tiết vật tư"],
+  select:["请选择物料。","Select a material.","Chọn một vật tư."],
+  realPhoto:["实物照片","Material photo","Ảnh thực tế"],
+  noPhoto:["暂无实物照片","No photo available","Chưa có ảnh thực tế"],
+  zoom:["放大照片","Enlarge photo","Phóng to ảnh"],
+  close:["关闭","Close","Đóng"],
+  manufacturers:["制造商与厂家料号","Manufacturers and part numbers","Nhà sản xuất và mã linh kiện"],
+  whereUsed:["查同料号的机型","Find models using this part","Xem dòng máy dùng mã này"],
+  loadError:["暂时无法读取物料，请刷新重试。","Materials could not load. Refresh to try again.","Chưa thể tải dữ liệu vật tư. Hãy tải lại trang."],
+  黑色:["黑色","Black","Đen"],
+  白色:["白色","White","Trắng"],
+  粉色:["粉色","Pink","Hồng"],
+  紫色:["紫色","Purple","Tím"],
+  绿色:["绿色","Green","Xanh lá"]
+};
+const languageKey="huali-bom-language";
+let language=locales[0];
+try{
+  const saved=localStorage.getItem(languageKey);
+  if(locales.includes(saved))language=saved;
+}catch{}
+const t=(key)=>text[key][locales.indexOf(language)];
 let state;
 let rows=[];
 let selectedModel="all";
 let selectedSection="";
 let selectedPart="";
 let page=0;
+let loadFailed=false;
+function drawLanguage(){
+  document.documentElement.lang=language;
+  document.title=t("title");
+  el("language").value=language;
+  for(const node of document.querySelectorAll("[data-text]"))node.textContent=t(node.dataset.text);
+  for(const node of document.querySelectorAll("[data-label]"))node.setAttribute("aria-label",t(node.dataset.label));
+  for(const node of document.querySelectorAll("[data-alt]"))node.alt=t(node.dataset.alt);
+  if(loadFailed)message(t("loadError"),true);
+}
+function modelTitle(book){
+  if(book.kind==="issue")return t("issue");
+  return book.title.replace(/ (黑色|白色|粉色|紫色|绿色)$/,(_,color)=>" "+t(color));
+}
 function message(text,error=false){
   el("message").textContent=text;
   el("message").hidden=!text;
@@ -17,7 +92,7 @@ function message(text,error=false){
 }
 function componentLabel(group){
   if(group.type==="issue")return group.id;
-  return (group.id.startsWith("850-")?"成品":group.id.startsWith("110-")?"整机":"PCBA")+" "+group.id;
+  return (group.id.startsWith("850-")?t("finished"):group.id.startsWith("110-")?t("system"):"PCBA")+" "+group.id;
 }
 function scope(model,section=""){
   selectedModel=model;selectedSection=section;selectedPart="";page=0;
@@ -34,28 +109,34 @@ function drawModels(){
     const books=state.books.filter(book=>book.family===family);
     const open=openFamilies.has(family)||books.some(book=>book.model===selectedModel)||(!el("models").children.length&&index===0);
     return '<details class="family" data-family="'+html(family)+'"'+(open?" open":"")+
-      '><summary>'+html(family)+'</summary>'+books.map(modelButton).join("")+'</details>';
+      '><summary>'+html(family)+'</summary>'+books.map(book=>modelButton({...book,title:modelTitle(book)})).join("")+'</details>';
   });
   const issue=state.books.find(item=>item.kind==="issue");
-  const personal={model:"personal",title:"自用物料"};
-  el("models").innerHTML=modelButton({model:"all",title:"全部工程 BOM"})+
-    (state.personal?.length?modelButton(personal):"")+view.join("")+(issue?modelButton(issue):"");
+  const personal={model:"personal",title:t("personal")};
+  el("models").innerHTML=modelButton({model:"all",title:t("all")})+
+    (state.personal?.length?modelButton(personal):"")+view.join("")+(issue?modelButton({...issue,title:modelTitle(issue)}):"");
   const book=state.books.find(item=>item.model===selectedModel);
   const personalView=selectedModel===personal.model;
-  el("list-title").textContent=personalView?personal.title:book?.title??"全部工程 BOM";
-  el("search").placeholder=personalView?"搜索文件名或备注":
-    selectedModel==="all"?"搜索料号、名称、厂家料号或文件名":"搜索料号、名称或厂家料号";
-  el("rev-heading").textContent=book?.kind==="issue"?"机种号":"REV";
-  el("component-heading").textContent=book?.kind==="issue"?"发料单":"组件";
-  el("sections").innerHTML='<option value="">全部组件</option>'+(book?.groups??[]).map(group=>
+  el("list-title").textContent=personalView?personal.title:book?modelTitle(book):t("all");
+  el("search").placeholder=t(personalView?"searchPersonal":selectedModel==="all"?"searchAll":"search");
+  el("rev-heading").textContent=t(book?.kind==="issue"?"modelNumber":"rev");
+  el("component-heading").textContent=t(book?.kind==="issue"?"issue":"component");
+  el("sections").innerHTML='<option value="">'+html(t("components"))+'</option>'+(book?.groups??[]).map(group=>
     '<option value="'+html(group.id)+'">'+html(componentLabel(group))+'</option>').join("");
   el("sections").value=selectedSection;
   el("sections").hidden=!book;
 }
 
+function drawCatalog(){
+  el("metrics").innerHTML=[[state.stats.models,t("modelCount")],[state.stats.parts,t("partCount")]]
+    .map(([v,label])=>"<div><dd>"+html(v)+"</dd><dt>"+html(label)+"</dt></div>").join("");
+  drawModels();
+  drawRows();
+}
+
 async function refresh(){
   const response=await fetch("./materials.json",{cache:"no-cache"});
-  if(!response.ok)throw new Error("暂时无法读取物料，请刷新重试。");
+  if(!response.ok)throw new Error(t("loadError"));
   state=await response.json();
   rows=state.books.flatMap(book=>book.groups.flatMap(group=>group.rows.map(row=>({
     ...row,uid:book.model+"|"+group.id+"|"+row.key, model:book.model, modelTitle:book.title,
@@ -66,10 +147,7 @@ async function refresh(){
     uid:"personal|"+item.name,model:"personal",kind:"personal",part:item.name,label:item.label,partKey:normalize(item.name),
     search:normalize(item.name+" "+item.label),photo:{url:item.url}
   })));
-  el("metrics").innerHTML=[[state.stats.models,"机型 BOM"],[state.stats.parts,"工程料号"]]
-    .map(([v,label])=>"<div><dd>"+v+"</dd><dt>"+label+"</dt></div>").join("");
-  drawModels();
-  drawRows();
+  drawCatalog();
 }
 function drawRows(){
   const terms=el("search").value.normalize("NFKC").trim().split(/\s+/)
@@ -81,7 +159,7 @@ function drawRows(){
     terms.every(([term,isCode])=>isCode?(row.kind!=="personal"&&term.length===10?row.partKey===term:row.partKey.startsWith(term)):row.search.includes(term)));
   const personalColumns=selectedModel==="personal"||
     (filtered.length>0&&filtered.every(row=>row.kind==="personal"));
-  el("part-heading").textContent=personalColumns?"文件名与备注":"料号与描述";
+  el("part-heading").textContent=t(personalColumns?"file":"part");
   for(const id of ["rev-heading","qty-heading","component-heading"])el(id).hidden=personalColumns;
   el("rows").closest("table").classList.toggle("personal-list",personalColumns);
   const last=Math.max(0,Math.ceil(filtered.length/pageSize)-1);
@@ -89,14 +167,15 @@ function drawRows(){
   const offset=page*pageSize;
   const visible=filtered.slice(offset,offset+pageSize);
   el("rows").innerHTML=visible.map(row=>'<tr data-row="'+html(row.uid)+'"><td>'+
-    (row.photo?'<button type="button" class="tn" data-zoom aria-label="放大 '+html(row.part)+' 的照片"><img src="'+html(row.photo.url)+'" alt=""></button>':'<span class="none">—</span>')+
+    (row.photo?'<button type="button" class="tn" data-zoom aria-label="'+html(t("zoom")+' · '+row.part)+'"><img src="'+html(row.photo.url)+'" alt=""></button>':'<span class="none">—</span>')+
     '</td><td'+(row.kind==="personal"&&!personalColumns?' colspan="4"':"")+'><button class="part" type="button">'+html(row.part)+'</button>'+
     (row.kind==="personal"?(row.label?'<span class="describe">'+html(row.label)+'</span>':"")+'</td>':
     (row.label?' <span class="row-label">'+html(row.label)+'</span>':"")+'<span class="describe">'+html(row.desc)+'</span></td>'+
     '<td class="mono">'+html(row.kind==="issue"?row.issue_model:row.rev||"—")+'</td><td class="mono row-qty">'+html(row.qty)+'</td><td class="'+(row.kind==="issue"?"":"mono")+'">'+html(row.section)+
-    (selectedModel==="all"?'<span class="describe">'+html(row.modelTitle)+'</span>':"")+'</td>')+'</tr>').join("")
-    ||'<tr><td class="empty muted" colspan="'+(personalColumns?2:5)+'">没有符合条件的物料。</td></tr>';
-  el("page-status").textContent=visible.length?"第 "+(offset+1)+"–"+(offset+visible.length)+" 条，共 "+filtered.length+" 条":"共 0 条";
+    (selectedModel==="all"?'<span class="describe">'+html(modelTitle({kind:row.kind,title:row.modelTitle}))+'</span>':"")+'</td>')+'</tr>').join("")
+    ||'<tr><td class="empty muted" colspan="'+(personalColumns?2:5)+'">'+html(t("empty"))+'</td></tr>';
+  el("page-status").textContent=visible.length?t("range").replace("{from}",offset+1)
+    .replace("{to}",offset+visible.length).replace("{total}",filtered.length):t("zero");
   el("previous").disabled=page===0;
   el("next").disabled=page>=last;
   showDetail(visible.find(row=>row.uid===selectedPart)??visible[0]);
@@ -105,28 +184,27 @@ function drawRows(){
 function showDetail(row,scroll=false){
   selectedPart=row?.uid??"";
   for(const element of el("rows").querySelectorAll("[data-row]"))element.classList.toggle("selected",element.dataset.row===selectedPart);
-  if(!row){el("detail").innerHTML='<h2>物料详情</h2><p class="muted">请选择物料。</p>';return;}
+  const heading='<h2>'+html(t("detail"))+'</h2>';
+  if(!row){el("detail").innerHTML=heading+'<p class="muted">'+html(t("select"))+'</p>';return;}
+  const photoButton=row.photo?'<button type="button" class="photo" id="enlarge" aria-label="'+html(t("zoom"))+
+    '"><img src="'+html(row.photo.url)+'" alt=""></button>':'<div class="photo">'+html(t("noPhoto"))+'</div>';
+  const name='<p class="mono part-id">'+html(row.part)+'</p>'+(row.label?'<h3>'+html(row.label)+'</h3>':"");
   if(row.kind==="personal"){
-    el("detail").innerHTML='<h2>物料详情</h2><button type="button" class="photo" id="enlarge" aria-label="放大照片"><img src="'+
-      html(row.photo.url)+'" alt=""></button><p class="mono part-id">'+html(row.part)+'</p>'+
-      (row.label?'<h3>'+html(row.label)+'</h3>':"");
+    el("detail").innerHTML=heading+photoButton+name;
     el("enlarge").addEventListener("click",()=>zoom(row));
     if(scroll&&matchMedia("(max-width:1120px)").matches)el("detail").scrollIntoView({block:"start"});
     return;
   }
-  const fields=[["用量",row.qty],["要求数量",row.request_qty],["实际数量",row.actual_qty],["机种号",row.issue_model],
-    ["REV",row.rev],["层级",row.level],["父件",row.parent],["位号",row.ref],
-    ["备注",row.note]];
-  el("detail").innerHTML='<h2>物料详情</h2>'+
-    (row.photo?'<button type="button" class="photo" id="enlarge" aria-label="放大照片"><img src="'+html(row.photo.url)+'" alt=""></button>'+
-      (row.photo.mpn?'<p class="caption">'+html(row.photo.mpn)+'</p>':""):
-      '<div class="photo">暂无实物照片</div>')+
-    '<p class="mono part-id">'+html(row.part)+'</p>'+(row.label?'<h3>'+html(row.label)+'</h3>':"")+'<p class="describe">'+html(row.desc)+'</p>'+
-    '<dl class="kv">'+fields.filter(([,v])=>v!==""&&v!=null).map(([k,v])=>"<dt>"+html(k)+"</dt><dd>"+html(v)+"</dd>").join("")+"</dl>"+
-    (row.mfr.length?'<h3>制造商与厂家料号</h3><ul>'+row.mfr.map(([maker,mpn,status,,ref,note])=>
+  const fields=[["quantity",row.qty],["requested",row.request_qty],["actual",row.actual_qty],["modelNumber",row.issue_model],
+    ["rev",row.rev],["level",row.level],["parent",row.parent],["reference",row.ref],["note",row.note]];
+  el("detail").innerHTML=heading+photoButton+
+    (row.photo?.mpn?'<p class="caption">'+html(row.photo.mpn)+'</p>':"")+
+    name+'<p class="describe">'+html(row.desc)+'</p>'+
+    '<dl class="kv">'+fields.filter(([,v])=>v!==""&&v!=null).map(([k,v])=>"<dt>"+html(t(k))+"</dt><dd>"+html(v)+"</dd>").join("")+"</dl>"+
+    (row.mfr.length?'<h3>'+html(t("manufacturers"))+'</h3><ul>'+row.mfr.map(([maker,mpn,status,,ref,note])=>
       "<li>"+[maker,mpn,status,ref,note].filter(Boolean).map(html).join(" · ")+"</li>").join("")+"</ul>":"")+
     '<div class="actions">'+
-    (numeric.test(row.part)?'<button type="button" id="find-part">查同料号的机型</button>':"")+'</div>';
+    (numeric.test(row.part)?'<button type="button" id="find-part">'+html(t("whereUsed"))+'</button>':"")+'</div>';
   el("enlarge")?.addEventListener("click",()=>zoom(row));
   el("find-part")?.addEventListener("click",()=>{
     scope("all");
@@ -137,7 +215,7 @@ function showDetail(row,scroll=false){
 }
 
 function zoom(row){
-  el("image-title").textContent=row.part+" · 实物照片";
+  el("image-title").textContent=row.part+" · "+t("realPhoto");
   el("large-image").src=row.photo.url;
   el("image-dialog").showModal();
 }
@@ -159,5 +237,15 @@ el("rows").addEventListener("click",event=>{
 for(const button of document.querySelectorAll("dialog .close")){
   button.addEventListener("click",()=>button.closest("dialog").close());
 }
-
-refresh().catch(error=>message(error.message,true));
+el("language").addEventListener("change",event=>{
+  if(!locales.includes(event.target.value))return;
+  language=event.target.value;
+  try{localStorage.setItem(languageKey,language);}catch{}
+  drawLanguage();
+  if(state)drawCatalog();
+});
+drawLanguage();
+refresh().catch(()=>{
+  loadFailed=true;
+  message(t("loadError"),true);
+});

@@ -4,48 +4,53 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>桦力 BOM</title>
-  <link rel="stylesheet" href="./query.css?v=f1e5dfeefd41">
-  <script defer src="./query.js?v=eb89d1ce61fe"></script>
+  <link rel="stylesheet" href="./query.css?v=09885434b77e">
+  <script defer src="./query.js?v=a1400ab1ab8b"></script>
 </head>
 <body>
 <header class="mast">
   <div class="shell mastinner">
-    <span class="brand"><span class="mark" aria-hidden="true"></span>桦力科技</span>
+    <span class="brand"><span class="mark" aria-hidden="true"></span><span data-text="brand">桦力科技</span></span>
+    <select id="language" aria-label="语言" data-label="language">
+      <option value="zh-CN" lang="zh-CN">中文</option>
+      <option value="en" lang="en">English</option>
+      <option value="vi" lang="vi">Tiếng Việt</option>
+    </select>
   </div>
   <div class="shell hero">
-    <div><h1>桦力 BOM</h1></div>
-    <dl id="metrics" class="metrics" aria-label="目录统计"></dl>
+    <div><h1 data-text="title">桦力 BOM</h1></div>
+    <dl id="metrics" class="metrics" aria-label="目录统计" data-label="stats"></dl>
   </div>
 </header>
 <main class="shell">
   <p id="message" class="banner" role="status" hidden></p>
   <div class="layout">
-    <nav class="panel navigation" aria-label="选择机型">
-      <h2>机型</h2>
+    <nav class="panel navigation" aria-label="选择机型" data-label="models">
+      <h2 data-text="models">机型</h2>
       <div id="models"></div>
     </nav>
     <section class="panel list" aria-labelledby="list-title">
       <div class="list-head">
-        <h2 id="list-title">物料清单</h2>
+        <h2 id="list-title" data-text="list">物料清单</h2>
         <div class="filters">
-          <select id="sections" aria-label="筛选组件"></select>
-          <input id="search" type="search" placeholder="搜索料号、名称或厂家料号" aria-label="搜索物料">
+          <select id="sections" aria-label="筛选组件" data-label="componentFilter"></select>
+          <input id="search" type="search" placeholder="搜索料号、名称或厂家料号" aria-label="搜索物料" data-label="searchLabel">
         </div>
       </div>
       <div class="scroll"><table>
-        <thead><tr><th>照片</th><th id="part-heading">料号与描述</th><th id="rev-heading">REV</th><th id="qty-heading">用量</th><th id="component-heading">组件</th></tr></thead>
+        <thead><tr><th data-text="photo">照片</th><th id="part-heading" data-text="part">料号与描述</th><th id="rev-heading" data-text="rev">REV</th><th id="qty-heading" data-text="quantity">用量</th><th id="component-heading" data-text="component">组件</th></tr></thead>
         <tbody id="rows"></tbody>
       </table></div>
       <div class="pager"><span id="page-status" role="status"></span><div class="actions">
-        <button id="previous" type="button">上一页</button><button id="next" type="button">下一页</button>
+        <button id="previous" type="button" data-text="previous">上一页</button><button id="next" type="button" data-text="next">下一页</button>
       </div></div>
     </section>
-    <aside id="detail" class="panel detail" aria-label="物料详情"></aside>
+    <aside id="detail" class="panel detail" aria-label="物料详情" data-label="detail"></aside>
   </div>
 </main>
 <dialog id="image-dialog">
-  <div class="dialog-head"><h2 id="image-title">实物照片</h2><button class="close" type="button" aria-label="关闭实物照片">关闭</button></div>
-  <div class="dialog-body"><img id="large-image" alt="物料放大照片"></div>
+  <div class="dialog-head"><h2 id="image-title" data-text="realPhoto">实物照片</h2><button class="close" type="button" data-text="close">关闭</button></div>
+  <div class="dialog-body"><img id="large-image" alt="物料照片" data-alt="realPhoto"></div>
 </dialog>
 </body>
 </html>
