@@ -65,6 +65,96 @@ try{
   if(locales.includes(saved))language=saved;
 }catch{}
 const t=(key)=>text[key][locales.indexOf(language)];
+const vietnameseRemarks={
+  "成品装箱":"Đóng thùng thành phẩm",
+  "成品机":"Máy thành phẩm",
+  "黑色充电器":"Bộ nguồn màu đen",
+  "黑色网线":"Cáp mạng màu đen",
+  "外箱贴纸":"Tem thùng ngoài",
+  "栈板贴纸":"Tem pallet",
+  "白色方形贴纸":"Tem vuông màu trắng",
+  "外箱":"Thùng carton ngoài",
+  "隔板":"Tấm ngăn",
+  "卡板":"Tấm chia ngăn",
+  "栈板":"Pallet",
+  "保护围膜":"Màng quấn bảo vệ",
+  "天地盖":"Nắp trên và nắp đáy",
+  "上盖黑色":"Nắp trên màu đen",
+  "底壳黑色":"Vỏ đáy màu đen",
+  "Telo黑色功能按键":"Phím chức năng Telo màu đen",
+  "下盖黑色翻页按键":"Nút chuyển trang màu đen ở nắp dưới",
+  "Telo黑色硅胶圈":"Vòng silicone Telo màu đen",
+  "保护膜贴纸":"Tem dán màng bảo vệ",
+  "保护膜":"Màng bảo vệ",
+  "喇叭":"Loa",
+  "FCC贴纸":"Tem FCC",
+  "喇叭插口":"Cổng kết nối loa",
+  "电话插口":"Cổng điện thoại",
+  "USB插口":"Cổng USB",
+  "网线插口":"Cổng mạng",
+  "电源插口":"Cổng nguồn",
+  "侧面按键":"Nút bên hông",
+  "正面按键":"Nút mặt trước",
+  "晶振":"Thạch anh dao động",
+  "电容":"Tụ điện",
+  "电阻":"Điện trở",
+  "电感":"Cuộn cảm",
+  "共模滤波器":"Bộ lọc nhiễu đồng pha",
+  "磁珠":"Hạt ferrite",
+  "变压器":"Biến áp",
+  "滤波器":"Bộ lọc",
+  "晶体管":"Transistor",
+  "二极管":"Điốt",
+  "发光二极管":"Điốt phát quang (LED)",
+  "集成电路":"Mạch tích hợp (IC)",
+  "屏蔽框":"Khung chắn nhiễu",
+  "P/N贴纸":"Tem mã linh kiện (P/N)",
+  "MAC贴纸":"Tem MAC",
+  "DECT贴纸":"Tem DECT",
+  "PCB板":"Bảng mạch in (PCB)",
+  "保险丝":"Cầu chì",
+  "成品箱":"Thùng thành phẩm",
+  "白色充电器":"Bộ nguồn màu trắng",
+  "白色网线":"Cáp mạng màu trắng",
+  "上盖白色":"Nắp trên màu trắng",
+  "下盖白色":"Nắp dưới màu trắng",
+  "Telo白色功能按键":"Phím chức năng Telo màu trắng",
+  "Telo白色硅胶圈":"Vòng silicone Telo màu trắng",
+  "警示贴纸":"Tem cảnh báo",
+  "WiFi 天线":"Ăng-ten Wi-Fi",
+  "Telo FCC贴纸":"Tem FCC của Telo",
+  "连接器":"Đầu nối",
+  "螺丝":"Vít",
+  "贴纸":"Tem dán",
+  "HANDSET":"Tay nghe",
+  "Screws and Anchors assemble into a labeled PE bag":"Đóng vít và tắc kê vào túi PE có dán nhãn",
+  "Top Enclosure top right corner":"Góc trên bên phải của vỏ trên",
+  "Top Enclosure bottom left corner":"Góc dưới bên trái của vỏ trên",
+  "Top Enclosure top left corner":"Góc trên bên trái của vỏ trên",
+  "-Qty 6 for bracket assembly -Qty 4 for Cheep PCBA":"6 chiếc cho cụm giá đỡ, 4 chiếc cho PCBA Cheep",
+  "-Qty 6 for enclosure assembly - Qty 1 for battery door":"6 chiếc cho cụm vỏ, 1 chiếc cho nắp ngăn pin",
+  "For Cello PCBA":"Dùng cho PCBA Cello",
+  "Load to J1200 M.2 Key B Connector":"Lắp vào đầu nối J1200 M.2 Key B",
+  "1 - to Pisces U.FL Coaxial (J201) 2 - to SunDial U.FL Coaxial ( J1004)":"1 – nối với đầu nối đồng trục U.FL của Pisces (J201); 2 – nối với đầu nối đồng trục U.FL của SunDial (J1004)",
+  "6 screws for enclosure and 4 for Cheep":"6 vít cho vỏ, 4 vít cho Cheep",
+  "6 screw for battery bracket and 1 for battery blocker":"6 vít cho giá đỡ pin và 1 vít cho chốt chặn pin",
+  "Screws Cello and Pisces":"Vít dùng cho Cello và Pisces",
+  "SunDial U.FL Coaxial (J1004)":"Đầu nối đồng trục U.FL của SunDial (J1004)",
+  "RG255G Diversity MF4 Flex Antenna":"Ăng-ten dẻo MF4 cho nhánh Diversity của RG255G",
+  "RG255G Main MF4 to SMA":"Đường chính (Main) của RG255G, từ MF4 đến SMA"
+};
+function vietnameseRemark(value){
+  if(!value)return value;
+  const normalized=value.trim().replace(/\s+/g," ");
+  if(Object.hasOwn(vietnameseRemarks,normalized))return vietnameseRemarks[normalized];
+  const ratio=normalized.match(/^(\d+)\s*(set\s+)?per\s+(\d+)(?:\s+(units?|handsets?|linx))?(?:\s*\(length:\s*([\d.]+)\s*m\s*\))?$/i);
+  if(!ratio)return value;
+  const [,count,set,total,unit,length]=ratio;
+  const unitName=/^handset/i.test(unit)?" tay nghe":/^linx$/i.test(unit)?" thiết bị LINX":unit?" đơn vị":"";
+  return count+(set?" bộ":"")+" trên mỗi "+total+unitName+
+    (length?" (chiều dài: "+length.replace(".",",")+" m)":"");
+}
+const displayRemark=(value)=>language==="vi"?vietnameseRemark(value):value;
 let state;
 let rows=[];
 let selectedModel="all";
@@ -141,11 +231,12 @@ async function refresh(){
   rows=state.books.flatMap(book=>book.groups.flatMap(group=>group.rows.map(row=>({
     ...row,uid:book.model+"|"+group.id+"|"+row.key, model:book.model, modelTitle:book.title,
     section:group.id, partKey:normalize(row.part), kind:group.type,
-    search:normalize([row.part,row.label,row.desc,row.ref,row.issue_model,group.id,...row.mfr.flatMap(x=>x.slice(0,3))].join(" ")),
+    search:normalize([row.part,row.label,vietnameseRemark(row.label),row.note,vietnameseRemark(row.note),row.desc,
+      row.ref,row.issue_model,group.id,...row.mfr.flatMap(x=>x.slice(0,3))].join(" ")),
   }))));
   rows.push(...(state.personal??[]).map(item=>({
     uid:"personal|"+item.name,model:"personal",kind:"personal",part:item.name,label:item.label,partKey:normalize(item.name),
-    search:normalize(item.name+" "+item.label),photo:{url:item.url}
+    search:normalize([item.name,item.label,vietnameseRemark(item.label)].join(" ")),photo:{url:item.url}
   })));
   drawCatalog();
 }
@@ -169,8 +260,8 @@ function drawRows(){
   el("rows").innerHTML=visible.map(row=>'<tr data-row="'+html(row.uid)+'"><td>'+
     (row.photo?'<button type="button" class="tn" data-zoom aria-label="'+html(t("zoom")+' · '+row.part)+'"><img src="'+html(row.photo.url)+'" alt=""></button>':'<span class="none">—</span>')+
     '</td><td'+(row.kind==="personal"&&!personalColumns?' colspan="4"':"")+'><button class="part" type="button">'+html(row.part)+'</button>'+
-    (row.kind==="personal"?(row.label?'<span class="describe">'+html(row.label)+'</span>':"")+'</td>':
-    (row.label?' <span class="row-label">'+html(row.label)+'</span>':"")+'<span class="describe">'+html(row.desc)+'</span></td>'+
+    (row.kind==="personal"?(row.label?'<span class="describe">'+html(displayRemark(row.label))+'</span>':"")+'</td>':
+    (row.label?' <span class="row-label">'+html(displayRemark(row.label))+'</span>':"")+'<span class="describe">'+html(row.desc)+'</span></td>'+
     '<td class="mono">'+html(row.kind==="issue"?row.issue_model:row.rev||"—")+'</td><td class="mono row-qty">'+html(row.qty)+'</td><td class="'+(row.kind==="issue"?"":"mono")+'">'+html(row.section)+
     (selectedModel==="all"?'<span class="describe">'+html(modelTitle({kind:row.kind,title:row.modelTitle}))+'</span>':"")+'</td>')+'</tr>').join("")
     ||'<tr><td class="empty muted" colspan="'+(personalColumns?2:5)+'">'+html(t("empty"))+'</td></tr>';
@@ -188,7 +279,7 @@ function showDetail(row,scroll=false){
   if(!row){el("detail").innerHTML=heading+'<p class="muted">'+html(t("select"))+'</p>';return;}
   const photoButton=row.photo?'<button type="button" class="photo" id="enlarge" aria-label="'+html(t("zoom"))+
     '"><img src="'+html(row.photo.url)+'" alt=""></button>':'<div class="photo">'+html(t("noPhoto"))+'</div>';
-  const name='<p class="mono part-id">'+html(row.part)+'</p>'+(row.label?'<h3>'+html(row.label)+'</h3>':"");
+  const name='<p class="mono part-id">'+html(row.part)+'</p>'+(row.label?'<h3>'+html(displayRemark(row.label))+'</h3>':"");
   if(row.kind==="personal"){
     el("detail").innerHTML=heading+photoButton+name;
     el("enlarge").addEventListener("click",()=>zoom(row));
@@ -196,13 +287,13 @@ function showDetail(row,scroll=false){
     return;
   }
   const fields=[["quantity",row.qty],["requested",row.request_qty],["actual",row.actual_qty],["modelNumber",row.issue_model],
-    ["rev",row.rev],["level",row.level],["parent",row.parent],["reference",row.ref],["note",row.note]];
+    ["rev",row.rev],["level",row.level],["parent",row.parent],["reference",row.ref],["note",displayRemark(row.note)]];
   el("detail").innerHTML=heading+photoButton+
     (row.photo?.mpn?'<p class="caption">'+html(row.photo.mpn)+'</p>':"")+
     name+'<p class="describe">'+html(row.desc)+'</p>'+
     '<dl class="kv">'+fields.filter(([,v])=>v!==""&&v!=null).map(([k,v])=>"<dt>"+html(t(k))+"</dt><dd>"+html(v)+"</dd>").join("")+"</dl>"+
     (row.mfr.length?'<h3>'+html(t("manufacturers"))+'</h3><ul>'+row.mfr.map(([maker,mpn,status,,ref,note])=>
-      "<li>"+[maker,mpn,status,ref,note].filter(Boolean).map(html).join(" · ")+"</li>").join("")+"</ul>":"")+
+      "<li>"+[maker,mpn,status,ref,displayRemark(note)].filter(Boolean).map(html).join(" · ")+"</li>").join("")+"</ul>":"")+
     '<div class="actions">'+
     (numeric.test(row.part)?'<button type="button" id="find-part">'+html(t("whereUsed"))+'</button>':"")+'</div>';
   el("enlarge")?.addEventListener("click",()=>zoom(row));
